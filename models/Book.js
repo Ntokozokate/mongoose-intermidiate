@@ -7,4 +7,4 @@ const BookSchema = new mongoose.Schema({
     ref: "Author",
   },
 });
-export default mongoose.model("Book", "BookSchema");
+export default mongoose.model("Book", BookSchema);
