@@ -1,5 +1,94 @@
 import Product from "../models/Product.js";
 
+export const getProductStats = async (req, res) => {
+  try {
+    const result = await Product.aggregate([
+      //stage 1
+      {
+        $match: {
+          inStock: true,
+          price: {
+            $gte: 400,
+          },
+        },
+      },
+      //stage 2 GROUP by category
+      {
+        $group: {
+          _id: "$category",
+          avgprice: {
+            $avg: "$price",
+          },
+          count: {
+            $sum: 1,
+          },
+        },
+      },
+    ]);
+    res.status(200).json({
+      success: true,
+      message: `There are  ${result.length} available products`,
+      data: result,
+    });
+  } catch (error) {
+    console.log("Error geting product stat:", error);
+    res.status(500).json({
+      message: "Error getting product stat",
+      error: error.message,
+    });
+  }
+};
+export const getProductAnalysis = async (req, res) => {
+  try {
+    const result = await Product.aggregate([
+      {
+        $match: {
+          category: "Electronics",
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: {
+            $sum: "$price",
+          },
+          averagePrice: {
+            $avg: "$price",
+          },
+          maxProductPrice: {
+            $max: "$price",
+          },
+          minProductPrice: {
+            $min: "$price",
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          totalRevenue: 1,
+          averagePrice: 1,
+          maxProductPrice: 1,
+          minProductPrice: 1,
+          priceRange: {
+            $subtract: ["$maxProductPrice", "$minProductPrice"],
+          },
+        },
+      },
+    ]);
+    res.status(200).json({
+      success: true,
+      data: result, //[0] || {}, // Return the first aggregation result
+    });
+  } catch (error) {
+    console.log("Error making analysis:", error);
+    res.status(500).json({
+      message: "Error occured whilst getting analysis",
+      error: error.message,
+    });
+  }
+};
+
 export const insertSampleProducts = async (req, res) => {
   try {
     const sampleProducts = [
@@ -32,11 +121,32 @@ export const insertSampleProducts = async (req, res) => {
         tags: ["audio", "noise-cancelling", "wireless"],
       },
       {
-        name: "HP Pavilion Gaming PC",
-        category: "Electronics",
-        price: 1100,
+        name: "Nike Air Max 270",
+        category: "Footwear",
+        price: 150,
         inStock: true,
-        tags: ["desktop", "gaming", "nvidia"],
+        tags: ["shoes", "sneakers", "nike"],
+      },
+      {
+        name: "Adidas Ultraboost",
+        category: "Footwear",
+        price: 180,
+        inStock: false,
+        tags: ["sneakers", "adidas", "running"],
+      },
+      {
+        name: "Levi's 501 Original Jeans",
+        category: "Clothing",
+        price: 70,
+        inStock: true,
+        tags: ["jeans", "denim", "levis"],
+      },
+      {
+        name: "North Face Winter Jacket",
+        category: "Clothing",
+        price: 250,
+        inStock: true,
+        tags: ["jacket", "winter", "northface"],
       },
       {
         name: "Canon EOS 250D DSLR Camera",
@@ -46,14 +156,27 @@ export const insertSampleProducts = async (req, res) => {
         tags: ["camera", "dslr", "photography"],
       },
       {
-        name: "Apple iPad 10th Gen",
-        category: "Electronics",
-        price: 499,
+        name: "IKEA Markus Office Chair",
+        category: "Furniture",
+        price: 199,
         inStock: true,
-        tags: ["tablet", "apple", "ipad"],
+        tags: ["chair", "office", "ergonomic"],
+      },
+      {
+        name: "Samsung 55-inch 4K Smart TV",
+        category: "Electronics",
+        price: 690,
+        inStock: false,
+        tags: ["tv", "smart-tv", "4k"],
+      },
+      {
+        name: "Logitech MX Master 3S Mouse",
+        category: "Electronics",
+        price: 99,
+        inStock: true,
+        tags: ["mouse", "wireless", "logitech"],
       },
     ];
-
     const result = await Product.insertMany(sampleProducts);
     return res.status(201).json({
       success: true,
