@@ -3,7 +3,7 @@ import Product from "../models/Product.js";
 export const getProductStats = async (req, res) => {
   try {
     const result = await Product.aggregate([
-      //stage 1
+      //stage 1 filtering documents that are in stock and cost above 400
       {
         $match: {
           inStock: true,
@@ -12,7 +12,7 @@ export const getProductStats = async (req, res) => {
           },
         },
       },
-      //stage 2 GROUP by category
+      //stage group by category and get everage price and get amount
       {
         $group: {
           _id: "$category",
