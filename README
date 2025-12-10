@@ -1,0 +1,30 @@
+*** Walkthrough the book controller
+Introduces a new book and author management API with models, controllers, and routes.
+ Updates Author and Book models by adding new fields and correcting model export statements.
+ Mounts the new API at the "/reference" path in the server.
+
+
+Summary
+New Book/Author API Module
+controllers/book.controller.js, routes/book.routes.js	
+
+Adds three controller handlers (createAuthor, createBook, getBookWithAuthor)
+ with standard try/catch error handling. Routes POST and GET endpoints for author and book operations, 
+ with book retrieval populating author references.
+
+Model Updates
+models/Author.js, models/Book.js	
+
+Adds country field to Author schema and genre field to Book schema.
+ Fixes model exports by passing actual schema objects
+  instead of string literals to mongoose.model().
+
+Server Integration
+server.js	
+
+Imports and mounts book routes at the "/reference" API path.
+
+Documentation Update
+controllers/product.controller.js	
+
+Updates non-functional comments in getProductStats to clarify aggregation pipeline stages.

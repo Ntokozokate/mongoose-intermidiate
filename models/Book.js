@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const BookSchema = new mongoose.Schema({
   title: String,
-  genre: string,
+  genre: String,
   author: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Author",
